@@ -8,7 +8,7 @@ package webview
 #cgo darwin LDFLAGS: -framework WebKit
 
 #cgo windows CXXFLAGS: -DWEBVIEW_EDGE -std=c++17
-#cgo windows LDFLAGS: -static -ladvapi32 -lole32 -lshell32 -lshlwapi -luser32 -lversion
+#cgo windows LDFLAGS: -static -ladvapi32 -lole32 -lshell32 -lshlwapi -luser32 -lversion 
 
 #include "webview.h"
 
@@ -55,6 +55,10 @@ type WebView interface {
 	// Run runs the main loop until it's terminated. After this function exits -
 	// you must destroy the webview.
 	Run()
+
+	// Run runs the main loop in a OS thread. -
+	// you must destroy the webview.
+	RunInThread()
 
 	// Terminate stops the main loop. It is safe to call this function from
 	// a background thread.
@@ -155,6 +159,10 @@ func (w *webview) Destroy() {
 
 func (w *webview) Run() {
 	C.webview_run(w.w)
+}
+
+func (w *webview) RunInThread() {
+	C.webview_run_in_thread(w.w)
 }
 
 func (w *webview) Terminate() {

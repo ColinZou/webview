@@ -112,6 +112,10 @@ WEBVIEW_API void webview_destroy(webview_t w);
 // must destroy the webview.
 WEBVIEW_API void webview_run(webview_t w);
 
+// Runs the main loop until it's terminated. After this function exits - you
+// must destroy the webview.
+WEBVIEW_API void webview_run_in_thread(webview_t w);
+
 // Stops the main loop. It is safe to call this function from another other
 // background thread.
 WEBVIEW_API void webview_terminate(webview_t w);
@@ -223,7 +227,6 @@ WEBVIEW_API const webview_version_info_t *webview_version();
 #include <string>
 #include <utility>
 #include <vector>
-
 #include <cstring>
 
 namespace webview {
@@ -506,6 +509,7 @@ inline std::string json_parse(const std::string &s, const std::string &key,
 //
 #include <JavaScriptCore/JavaScript.h>
 #include <gtk/gtk.h>
+#include <thread>
 #include <webkit2/webkit2.h>
 
 namespace webview {
@@ -562,6 +566,11 @@ public:
   virtual ~gtk_webkit_engine() = default;
   void *window() { return (void *)m_window; }
   void run() { gtk_main(); }
+  void run_in_thread_entry() {
+    std::thread the_thread(this->run);
+    printf("run window in new thread\n");
+    the_thread.detach();
+  }
   void terminate() { gtk_main_quit(); }
   void dispatch(std::function<void()> f) {
     g_idle_add_full(G_PRIORITY_HIGH_IDLE, (GSourceFunc)([](void *f) -> int {
@@ -662,6 +671,7 @@ using browser_engine = detail::gtk_webkit_engine;
 #include <CoreGraphics/CoreGraphics.h>
 #include <objc/NSObjCRuntime.h>
 #include <objc/objc-runtime.h>
+#include <thread>
 
 namespace webview {
 namespace detail {
@@ -746,6 +756,11 @@ public:
   void run() {
     auto app = get_shared_application();
     objc::msg_send<void>(app, "run"_sel);
+  }
+  void run_in_thread_entry() {
+    std::thread the_thread(this->run);
+    printf("run window in new thread\n");
+    the_thread.detach();
   }
   void dispatch(std::function<void()> f) {
     dispatch_async_f(dispatch_get_main_queue(), new dispatch_fn_t(f),
@@ -1052,7 +1067,7 @@ using browser_engine = detail::cocoa_wkwebview_engine;
 #include <shlwapi.h>
 #include <stdlib.h>
 #include <windows.h>
-
+#include <thread>
 #include "WebView2.h"
 
 #ifdef _MSC_VER
@@ -1947,6 +1962,11 @@ public:
       }
     }
   }
+  void run_in_thread_entry() {
+    std::thread the_thread(this->run);
+    printf("run window in new thread\n");
+    the_thread.detach();
+  }
   void *window() { return (void *)m_window; }
   void terminate() { PostQuitMessage(0); }
   void dispatch(dispatch_fn_t f) {
@@ -2227,6 +2247,9 @@ WEBVIEW_API void webview_run(webview_t w) {
   static_cast<webview::webview *>(w)->run();
 }
 
+WEBVIEW_API void webview_run_in_thread(webview_t w) {
+  static_cast<webview::webview *>(w)->run_in_thread_entry();
+}
 WEBVIEW_API void webview_terminate(webview_t w) {
   static_cast<webview::webview *>(w)->terminate();
 }

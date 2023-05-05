@@ -567,7 +567,7 @@ public:
   void *window() { return (void *)m_window; }
   void run() { gtk_main(); }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run);
+    std::thread the_thread(this->run, VOID);
     printf("run window in new thread\n");
     the_thread.detach();
   }
@@ -758,7 +758,7 @@ public:
     objc::msg_send<void>(app, "run"_sel);
   }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run);
+    std::thread the_thread(this->run, VOID);
     printf("run window in new thread\n");
     the_thread.detach();
   }
@@ -1963,7 +1963,7 @@ public:
     }
   }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run);
+    std::thread the_thread(this->run, VOID);
     printf("run window in new thread\n");
     the_thread.detach();
   }

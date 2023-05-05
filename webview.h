@@ -567,7 +567,7 @@ public:
   void *window() { return (void *)m_window; }
   void run() { gtk_main(); }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run, VOID);
+    std::thread the_thread(gtk_webkit_engine::run_thread_internal, this);
     printf("run window in new thread\n");
     the_thread.detach();
   }
@@ -627,6 +627,7 @@ public:
   }
 
 private:
+  static void run_thread_internal(gtk_webkit_engine *param) { param->run(); }
   virtual void on_message(const std::string &msg) = 0;
 
   static char *get_string_from_js_result(WebKitJavascriptResult *r) {
@@ -758,7 +759,7 @@ public:
     objc::msg_send<void>(app, "run"_sel);
   }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run, VOID);
+    std::thread the_thread(cocoa_wkwebview_engine::run_thread_internal, this);
     printf("run window in new thread\n");
     the_thread.detach();
   }
@@ -836,6 +837,7 @@ public:
   }
 
 private:
+  static void run_thread_internal(cocoa_wkwebview_engine* param) { param->run(); }
   virtual void on_message(const std::string &msg) = 0;
   id create_app_delegate() {
     // Note: Avoid registering the class name "AppDelegate" as it is the
@@ -1963,7 +1965,7 @@ public:
     }
   }
   void run_in_thread_entry() {
-    std::thread the_thread(this->run, VOID);
+    std::thread the_thread(win32_edge_engine::run_thread_internal, this);
     printf("run window in new thread\n");
     the_thread.detach();
   }
@@ -2025,6 +2027,9 @@ public:
   }
 
 private:
+  static void run_thread_internal(win32_edge_engine *param) { 
+      param->run(); 
+  }
   bool embed(HWND wnd, bool debug, msg_cb_t cb) {
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
     flag.test_and_set();

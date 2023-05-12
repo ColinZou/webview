@@ -20,6 +20,14 @@ You JUST need to implement ICoreWebView2NewWindowRequestedEventHandler. That's t
 
 You may check ```examples/open_window.go```. And I also added ```build_open_window.bat``` so you can try it directly.
 
+#### How can I reference the code?
+
+```bash
+go get -u github.com/ColinZou/webview@mwindow-0.1.2
+```
+
+
+
 ### NOTE
 
 #### a. register a child window open callback
@@ -55,6 +63,52 @@ You need to call native method in following way:
 ```javascript
 window.chrome.webview.postMessage('{"id":1,"method":"hello","params":[]}')
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
